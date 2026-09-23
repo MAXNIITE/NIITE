@@ -17,7 +17,7 @@ Kwa sasa inafanya kazi kwenye **https://niite.vercel.app** (tovuti/PWA), na mrad
 | `manifest.json` | Jina, rangi, icons za app |
 | `sw.js` | Service worker (inaifanya ifanye kazi bila internet) |
 | `package.json` | Capacitor + scripts za build |
-| `capacitor.config.json` | Config ya Android (webDir: `www`) |
+| `capacitor.config.js` | Config ya Android (webDir: `www`) |
 | `scripts/prepare-www.js` | Inanakili faili za app kwenye `www/` |
 | `github-workflow-android.yml` | Workflow ya GitHub Actions (tazama chini) |
 
@@ -65,7 +65,7 @@ npm run apk
 
 ```bash
 npm install
-npm run www
+npm run prepare:www
 npx cap add android
 npx cap sync android
 npx cap open android
