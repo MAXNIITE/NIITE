@@ -42,14 +42,17 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
   display: flex;
   justify-content: center;
   align-items: stretch;
-  min-height: 100dvh;
+  height: 100svh;
+  min-height: 100vh;
+  overflow: hidden;
 }
 
 .app {
   position: relative;
   width: 100%;
   max-width: 460px;
-  height: 100dvh;
+  height: 100svh;
+  max-height: 100svh;
   background: var(--bg);
   display: flex;
   flex-direction: column;
