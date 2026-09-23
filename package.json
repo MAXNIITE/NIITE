@@ -1,0 +1,21 @@
+{
+  "name": "niite",
+  "version": "1.0.0",
+  "description": "NIITE — pata fundi wa kila aina, haraka.",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "prepare:www": "node scripts/prepare-www.js",
+    "add:android": "cap add android",
+    "sync": "npm run prepare:www && cap sync android",
+    "apk": "npm run prepare:www && (cap add android || true) && cap sync android && cd android && chmod +x gradlew && ./gradlew assembleDebug",
+    "build:apk": "npm run apk"
+  },
+  "dependencies": {
+    "@capacitor/android": "^7.0.0",
+    "@capacitor/core": "^7.0.0"
+  },
+  "devDependencies": {
+    "@capacitor/cli": "^7.0.0"
+  }
+}
