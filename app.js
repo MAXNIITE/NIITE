@@ -1,49 +1,70 @@
 /* ============================================================
    NIITE — app logic (mobile app shell)
-   Reads fundis from Supabase, submits client requests and fundi
-   registrations, then opens WhatsApp directly to the matching fundi.
-   Falls back to demo data until Supabase env vars are configured.
+
+   Data lives in Supabase:
+     mafundi(jina, ujuzi, eneo, simu, kiwango, uzoefu, kuhusu,
+             inapatikana, alama, kazi)
+     maombi(mteja_jina, mteja_simu, huduma, eneo, maelezo, fundi_id)
+
+   Clients submit a request (no account needed) and are sent straight
+   to the matching fundi's WhatsApp. Fundis register from the app.
+   Falls back to demo data until the Supabase anon key is configured.
    ============================================================ */
 
-const SUPABASE_URL = (window.NIITE_SUPABASE_URL || "").trim();
+const SUPABASE_URL = (window.NIITE_SUPABASE_URL || "").trim().replace(/\/+$/, "");
 const SUPABASE_ANON_KEY = (window.NIITE_SUPABASE_ANON_KEY || "").trim();
 const HAS_SUPABASE = Boolean(SUPABASE_URL && SUPABASE_ANON_KEY);
 
 const COUNTRY_CODE = "255"; // normalise local 0xxx numbers for wa.me
 
-/* ---------- Service catalogue ---------- */
+/* ---------- Service catalogue ----------
+   Each entry maps a stable id to what we store in the database
+   ("ujuzi" / "huduma" on a fundi, "huduma" on a request). */
 
 const HUDUMA = [
-  { id: "umeme",     jina: "Umeme",              icon: "\u26A1" },
-  { id: "maji",      jina: "Maji & Mabomba",     icon: "\uD83D\uDCA7" },
-  { id: "simu",      jina: "Simu & Elektroniki", icon: "\uD83D\uDCF1" },
-  { id: "useremala", jina: "Useremala",          icon: "\uD83E\uDE9A" },
-  { id: "uashi",     jina: "Uashi & Ukuta",      icon: "\uD83E\uDDF1" },
-  { id: "rangi",     jina: "Kupaka Rangi",       icon: "\uD83C\uDFA8" },
-  { id: "vyombo",    jina: "Kutengeneza Vyombo", icon: "\uD83D\uDD27" },
-  { id: "paa",       jina: "Paa & Kuezeka",      icon: "\uD83C\uDFE0" },
-  { id: "fanicha",   jina: "Fanicha",            icon: "\uD83E\uDE91" },
-  { id: "AC",        jina: "AC & Friji",         icon: "\u2744\uFE0F" },
-  { id: "bustani",   jina: "Bustani",            icon: "\uD83C\uDF31" },
-  { id: "usafi",     jina: "Usafi wa Nyumba",    icon: "\uD83E\uDDF9" }
+  { id: "Umeme",            jina: "Umeme",              icon: "\u26A1" },
+  { id: "Maji na Mabomba",  jina: "Maji & Mabomba",     icon: "\uD83D\uDCA7" },
+  { id: "Simu na Kompyuta", jina: "Simu & Elektroniki", icon: "\uD83D\uDCF1" },
+  { id: "Useremala",        jina: "Useremala",          icon: "\uD83E\uDE9A" },
+  { id: "Ujenzi",           jina: "Ujenzi & Uashi",     icon: "\uD83E\uDDF1" },
+  { id: "Rangi na Upakaji", jina: "Kupaka Rangi",       icon: "\uD83C\uDFA8" },
+  { id: "Vyombo",           jina: "Kutengeneza Vyombo", icon: "\uD83D\uDD27" },
+  { id: "Paa",              jina: "Paa & Kuezeka",      icon: "\uD83C\uDFE0" },
+  { id: "Fanicha",          jina: "Fanicha",            icon: "\uD83E\uDE91" },
+  { id: "AC na Friji",      jina: "AC & Friji",         icon: "\u2744\uFE0F" },
+  { id: "Bustani",          jina: "Bustani",            icon: "\uD83C\uDF31" },
+  { id: "Usafi wa Nyumbani",jina: "Usafi wa Nyumbani",  icon: "\uD83E\uDDF9" }
 ];
 
-const hudumaJina = (id) => {
-  const h = HUDUMA.find((x) => x.id === id);
-  return h ? h.jina : id;
-};
+const hudumaMap = {};
+HUDUMA.forEach((h) => { hudumaMap[h.id] = h; });
 
-/* ---------- Demo data (used only before Supabase is wired up) ---------- */
+const hudumaJina = (id) => (hudumaMap[id] ? hudumaMap[id].jina : id);
+const hudumaIcon = (id) => (hudumaMap[id] ? hudumaMap[id].icon : "\uD83D\uDD27");
+
+/* A fundi's stored "ujuzi" text may not match a catalogue id exactly,
+   so resolve it by substring before falling back to the raw value. */
+function hudumaIdFromText(text) {
+  const t = String(text || "").toLowerCase().trim();
+  if (!t) return "";
+  if (hudumaMap[text]) return text;
+  const direct = HUDUMA.find((h) => h.id.toLowerCase() === t);
+  if (direct) return direct.id;
+  const partial = HUDUMA.find((h) => t.includes(h.id.toLowerCase()) || h.id.toLowerCase().includes(t));
+  return partial ? partial.id : String(text || "").trim();
+}
+
+/* ---------- Demo data (used only until Supabase is wired up) ---------- */
 
 const DEMO_MAFUNDI = [
-  { id: "d1", jina: "Ramadhani Mwakyusa", huduma: "umeme",     eneo: "Kariakoo, Dar",    simu: "0712345678", uzoefu: 9,  bei: 20000, maelezo: "Umeme wa nyumbani na viwandani. Nafanya dharura usiku kucha.", haraka: true,  kazi: 214 },
-  { id: "d2", jina: "Salma Abdallah",     huduma: "maji",      eneo: "Kijitonyama, Dar", simu: "0765112233", uzoefu: 6,  bei: 15000, maelezo: "Mabomba yaliyovuja, kuweka tank, pampu na matengenezo yote.", haraka: true,  kazi: 132 },
-  { id: "d3", jina: "Joseph Kimaro",      huduma: "simu",      eneo: "Kinondoni, Dar",   simu: "0754445566", uzoefu: 11, bei: 12000, maelezo: "Kurekebisha simu, laptop na TV. Screen na betri replacement.", haraka: false, kazi: 341 },
-  { id: "d4", jina: "Mwijage Magesa",     huduma: "useremala", eneo: "Sinza, Dar",       simu: "0718778899", uzoefu: 14, bei: 18000, maelezo: "Milango, madirisha, jiko la mbao na kuweka kabati.", haraka: false, kazi: 189 },
-  { id: "d5", jina: "Hamisi Juma",        huduma: "uashi",     eneo: "Tabata, Dar",      simu: "0788334455", uzoefu: 10, bei: 22000, maelezo: "Uashi, ukuta na kuweka tiles. Nina timu yangu.", haraka: false, kazi: 97 },
-  { id: "d6", jina: "Neema Mushi",        huduma: "rangi",     eneo: "Mikocheni, Dar",   simu: "0741223344", uzoefu: 7,  bei: 16000, maelezo: "Kupaka rangi ya ndani na nje, plaster na wallpaper.", haraka: false, kazi: 143 },
-  { id: "d7", jina: "Baraka Mwita",       huduma: "AC",        eneo: "Masaki, Dar",      simu: "0715998877", uzoefu: 8,  bei: 25000, maelezo: "Kuweka AC, friji na kusafisha service yote.", haraka: true,  kazi: 76 },
-  { id: "d8", jina: "Zuhura Salum",       huduma: "vyombo",    eneo: "Ilala, Dar",       simu: "0752665544", uzoefu: 12, bei: 10000, maelezo: "Kutengeneza jiko la gesi, kofia na kona za chuma.", haraka: false, kazi: 210 }
+  { id: "d1", jina: "Juma Mwangi",  ujuzi: "Umeme",            eneo: "Kariakoo, Dar es Salaam", simu: "0712345670", uzoefu: "Miaka 12", kuhusu: "Fundi wa umeme wa nyumbani na biashara. Nafunga waya, switchboard na solar.", alama: 4.9, kazi: 340 },
+  { id: "d2", jina: "Halima Said",  ujuzi: "Maji na Mabomba",  eneo: "Kinondoni, Dar es Salaam", simu: "0713456781", uzoefu: "Miaka 9",  kuhusu: "Nafunga na kutengeneza mabomba, pampu na tanki la maji.", alama: 4.8, kazi: 218 },
+  { id: "d3", jina: "Salim Baraka", ujuzi: "Simu na Kompyuta", eneo: "Zanzibar Mjini",           simu: "0774567892", uzoefu: "Miaka 7",  kuhusu: "Naboresha simu na laptop, nafunga kamera za usalama.", alama: 4.7, kazi: 165 },
+  { id: "d4", jina: "Peter Michael",ujuzi: "Useremala",        eneo: "Arusha Mjini",             simu: "0755678903", uzoefu: "Miaka 6",  kuhusu: "Kazi za mbao, milango, kabati na samani za nyumbani.", alama: 4.6, kazi: 92 },
+  { id: "d5", jina: "Fatuma Ally",  ujuzi: "Usafi wa Nyumbani",eneo: "Mbeya Mjini",              simu: "0766789014", uzoefu: "Miaka 10", kuhusu: "Usafi wa nyumbani na ofisi kwa ubora wa hali ya juu.", alama: 4.9, kazi: 410 },
+  { id: "d6", jina: "Yusuf Hamisi", ujuzi: "Rangi na Upakaji", eneo: "Temeke, Dar es Salaam",    simu: "0717890125", uzoefu: "Miaka 5",  kuhusu: "Napaka rangi nyumba na ofisi, na kuweka plaster nzuri.", alama: 4.5, kazi: 76 },
+  { id: "d7", jina: "Grace Mushi",  ujuzi: "AC na Friji",      eneo: "Moshi Mjini",              simu: "0788901236", uzoefu: "Miaka 8",  kuhusu: "Kuweka AC na friji, kusafisha service na matengenezo.", alama: 4.8, kazi: 301 },
+  { id: "d8", jina: "Ally Mkwawa",  ujuzi: "Ujenzi",           eneo: "Dodoma Mjini",             simu: "0719012347", uzoefu: "Miaka 14", kuhusu: "Ujenzi wa msingi, ukuta na ufinyanzi wa jengo zima.", alama: 4.7, kazi: 188 }
 ];
 
 /* ---------- Helpers ---------- */
@@ -88,6 +109,12 @@ function waNumber(simu) {
   return n;
 }
 
+function formatKazi(n) {
+  const v = Number(n) || 0;
+  if (v >= 1000) return (v / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  return String(v);
+}
+
 /* ---------- Supabase REST ---------- */
 
 async function sbRequest(path, { method = "GET", body, prefer } = {}) {
@@ -119,7 +146,6 @@ function goTo(name) {
   if (!target) return;
 
   $$(".screen").forEach((s) => s.classList.toggle("active", s === target));
-
   $$(".tab").forEach((t) => t.classList.toggle("active", t.dataset.go === name));
 
   const subs = {
@@ -147,8 +173,11 @@ async function loadMafundi() {
   const hali = $("#orodha-hali");
   if (HAS_SUPABASE) {
     try {
-      const rows = await sbRequest("/mafundi?select=*&hai=eq.true&order=kazi.desc");
+      const rows = await sbRequest(
+        "/mafundi?select=*&inapatikana=eq.true&order=kazi.desc"
+      );
       MAFUNDI = Array.isArray(rows) ? rows : [];
+      if (hali) hali.textContent = MAFUNDI.length ? "" : "Hakuna fundi aliyejisajili bado.";
     } catch (err) {
       console.error(err);
       MAFUNDI = DEMO_MAFUNDI;
@@ -156,6 +185,7 @@ async function loadMafundi() {
     }
   } else {
     MAFUNDI = DEMO_MAFUNDI;
+    if (hali) hali.textContent = "Inaonyesha mafundi wa mfano — database haijawashwa bado.";
   }
   renderMafundi();
   renderHomeMafundi();
@@ -173,18 +203,21 @@ function renderStats() {
 }
 
 function fundiCard(f) {
+  const hid = hudumaIdFromText(f.ujuzi);
+  const meta = [f.eneo, f.simu].filter(Boolean).map(escapeHtml).join(" \u00B7 ");
+
   const tags = [
-    `<span class="tag">${escapeHtml(hudumaJina(f.huduma))}</span>`,
-    f.haraka ? `<span class="tag urgent">Dharura</span>` : "",
-    f.uzoefu ? `<span class="tag">Miaka ${escapeHtml(f.uzoefu)}</span>` : ""
+    `<span class="tag">${escapeHtml(hudumaJina(hid))}</span>`,
+    f.uzoefu ? `<span class="tag">${escapeHtml(String(f.uzoefu).match(/^\d/) ? "Miaka " + f.uzoefu : f.uzoefu)}</span>` : "",
+    Number(f.kazi) > 0 ? `<span class="tag">Kazi ${escapeHtml(formatKazi(f.kazi))}</span>` : ""
   ].join("");
 
-  const bei = Number(f.bei) > 0
-    ? `<span class="price">Kuanzia <strong>TSh ${Number(f.bei).toLocaleString("en-US")}</strong></span>`
-    : `<span class="price muted">Bei kwa makubaliano</span>`;
+  const rating = Number(f.alama) > 0
+    ? `<span class="price">\u2605 <strong>${escapeHtml(Number(f.alama).toFixed(1))}</strong></span>`
+    : `<span class="price muted">Fundi mpya</span>`;
 
   const msg = encodeURIComponent(
-    `Habari ${f.jina}! Nimekupata kupitia NIITE. Nahitaji fundi wa ${hudumaJina(f.huduma)}.`
+    `Habari ${f.jina}! Nimekupata kupitia NIITE. Nahitaji fundi wa ${hudumaJina(hid)}.`
   );
 
   return `
@@ -193,13 +226,13 @@ function fundiCard(f) {
         <div class="avatar">${escapeHtml(initials(f.jina))}</div>
         <div>
           <p class="fundi-name">${escapeHtml(f.jina)}</p>
-          <p class="fundi-meta">${escapeHtml(f.eneo || "")}${f.simu ? " · " + escapeHtml(f.simu) : ""}</p>
+          <p class="fundi-meta">${meta}</p>
         </div>
       </div>
       <div class="tags">${tags}</div>
-      ${f.maelezo ? `<p class="fundi-desc">${escapeHtml(f.maelezo)}</p>` : ""}
+      ${f.kuhusu ? `<p class="fundi-desc">${escapeHtml(f.kuhusu)}</p>` : ""}
       <div class="fundi-foot">
-        ${bei}
+        ${rating}
         <a class="btn btn-primary btn-sm" target="_blank" rel="noopener"
            href="https://wa.me/${waNumber(f.simu)}?text=${msg}">Wasiliana</a>
       </div>
@@ -216,10 +249,10 @@ function renderMafundi() {
   const filterH = $("#filter-huduma")?.value || activeHuduma;
 
   let list = MAFUNDI.slice();
-  if (filterH) list = list.filter((f) => f.huduma === filterH);
+  if (filterH) list = list.filter((f) => hudumaIdFromText(f.ujuzi) === filterH);
   if (q) {
     list = list.filter((f) =>
-      [f.jina, f.eneo, hudumaJina(f.huduma), f.maelezo]
+      [f.jina, f.eneo, f.ujuzi, f.kuhusu, hudumaJina(hudumaIdFromText(f.ujuzi))]
         .join(" ")
         .toLowerCase()
         .includes(q)
@@ -245,52 +278,39 @@ function renderHomeMafundi() {
 /* ---------- Services UI ---------- */
 
 function renderHudumaUI() {
+  const options = HUDUMA
+    .map((h) => `<option value="${escapeHtml(h.id)}">${escapeHtml(h.jina)}</option>`)
+    .join("");
+
   const selectOmb = $("#select-huduma");
-  if (selectOmb) {
-    selectOmb.innerHTML =
-      `<option value="">Chagua huduma…</option>` +
-      HUDUMA.map((h) => `<option value="${h.id}">${escapeHtml(h.jina)}</option>`).join("");
-  }
+  if (selectOmb) selectOmb.innerHTML = `<option value="">Chagua huduma\u2026</option>` + options;
 
   const selectFundi = $("#select-huduma-fundi");
-  if (selectFundi) {
-    selectFundi.innerHTML =
-      `<option value="">Chagua ujuzi…</option>` +
-      HUDUMA.map((h) => `<option value="${h.id}">${escapeHtml(h.jina)}</option>`).join("");
-  }
+  if (selectFundi) selectFundi.innerHTML = `<option value="">Chagua ujuzi\u2026</option>` + options;
 
   const filter = $("#filter-huduma");
-  if (filter) {
-    filter.innerHTML =
-      `<option value="">Huduma zote</option>` +
-      HUDUMA.map((h) => `<option value="${h.id}">${escapeHtml(h.jina)}</option>`).join("");
-  }
+  if (filter) filter.innerHTML = `<option value="">Huduma zote</option>` + options;
+
+  const gridHtml = HUDUMA
+    .map((h) => `
+      <div class="service-item" data-huduma="${escapeHtml(h.id)}">
+        <span>${h.icon}</span>${escapeHtml(h.jina)}
+      </div>`)
+    .join("");
 
   const grid = $("#orodha-huduma");
-  if (grid) {
-    grid.innerHTML = HUDUMA.map(
-      (h) => `
-        <div class="service-item" data-huduma="${h.id}">
-          <span>${h.icon}</span>${escapeHtml(h.jina)}
-        </div>`
-    ).join("");
-  }
+  if (grid) grid.innerHTML = gridHtml;
 
   const gridAll = $("#orodha-huduma-zote");
-  if (gridAll) {
-    gridAll.innerHTML = HUDUMA.map(
-      (h) => `
-        <div class="service-item" data-huduma="${h.id}">
-          <span>${h.icon}</span>${escapeHtml(h.jina)}
-        </div>`
-    ).join("");
-  }
+  if (gridAll) gridAll.innerHTML = gridHtml;
 }
 
 function showHudumaList(hudumaId) {
   activeHuduma = hudumaId;
   const filter = $("#filter-huduma");
   if (filter) filter.value = hudumaId;
+  const search = $("#tafuta");
+  if (search) search.value = "";
   renderMafundi();
   goTo("mafundi");
 }
@@ -299,34 +319,42 @@ function showHudumaList(hudumaId) {
 
 async function submitOmb(fd) {
   const ombi = {
-    jina: (fd.get("jina") || "").trim(),
-    simu: (fd.get("simu") || "").trim(),
+    mteja_jina: (fd.get("jina") || "").trim(),
+    mteja_simu: (fd.get("simu") || "").trim(),
     huduma: fd.get("huduma") || "",
     eneo: (fd.get("eneo") || "").trim(),
     maelezo: (fd.get("maelezo") || "").trim(),
-    haraka: fd.get("haraka") === "on"
+    hali: "Mpya"
   };
 
-  if (!ombi.jina || !ombi.simu || !ombi.huduma || !ombi.eneo || !ombi.maelezo) {
+  if (!ombi.mteja_jina || !ombi.mteja_simu || !ombi.huduma || !ombi.eneo || !ombi.maelezo) {
     throw new Error("Tafadhali jaza sehemu zote muhimu.");
   }
 
-  if (HAS_SUPABASE) {
-    await sbRequest("/maombi", { method: "POST", body: ombi, prefer: "return=minimal" });
-  } else {
-    console.info("Supabase haipo — ombi la mfano:", ombi);
-  }
+  const haraka = fd.get("haraka") === "on";
 
-  const match = MAFUNDI
-    .filter((f) => f.huduma === ombi.huduma)
-    .sort((a, b) => (b.haraka === ombi.haraka ? 1 : 0) - (a.haraka === ombi.haraka ? 1 : 0))[0];
+  // Pick the best fundi for this service before writing the request,
+  // so the request row can reference them.
+  const matches = MAFUNDI
+    .filter((f) => hudumaIdFromText(f.ujuzi) === ombi.huduma)
+    .sort((a, b) => (Number(b.kazi) || 0) - (Number(a.kazi) || 0));
+  const match = matches[0] || null;
+
+  if (HAS_SUPABASE) {
+    const payload = { ...ombi };
+    if (match && typeof match.id === "number") payload.fundi_id = match.id;
+    if (haraka) payload.maelezo = "[DHARURA] " + payload.maelezo;
+    await sbRequest("/maombi", { method: "POST", body: payload, prefer: "return=minimal" });
+  } else {
+    console.info("Supabase haipo \u2014 ombi la mfano:", ombi);
+  }
 
   if (match) {
     const text = encodeURIComponent(
-      `Habari ${match.jina}, naitwa ${ombi.jina} kutoka ${ombi.eneo}. ` +
+      `Habari ${match.jina}, naitwa ${ombi.mteja_jina} kutoka ${ombi.eneo}. ` +
       `Nahitaji fundi wa ${hudumaJina(ombi.huduma)}. Tatizo: ${ombi.maelezo}` +
-      (ombi.haraka ? " (DHARURA)" : "") +
-      ` — namba yangu ni ${ombi.simu}. Nimekupata kupitia NIITE.`
+      (haraka ? " (DHARURA)" : "") +
+      ` \u2014 namba yangu ni ${ombi.mteja_simu}. Nimekupata kupitia NIITE.`
     );
     window.open(`https://wa.me/${waNumber(match.simu)}?text=${text}`, "_blank", "noopener");
   }
@@ -338,24 +366,24 @@ async function submitFundi(fd) {
   const fundi = {
     jina: (fd.get("jina") || "").trim(),
     simu: (fd.get("simu") || "").trim(),
-    huduma: fd.get("huduma") || "",
+    ujuzi: fd.get("huduma") || "",
     eneo: (fd.get("eneo") || "").trim(),
-    uzoefu: Number(fd.get("uzoefu") || 0),
-    bei: Number(fd.get("bei") || 0),
-    maelezo: (fd.get("maelezo") || "").trim(),
-    haraka: true,
-    hai: true,
+    uzoefu: (fd.get("uzoefu") || "").trim() ? "Miaka " + fd.get("uzoefu") : "",
+    kuhusu: (fd.get("maelezo") || "").trim(),
+    kiwango: "Kawaida",
+    inapatikana: true,
+    alama: 0,
     kazi: 0
   };
 
-  if (!fundi.jina || !fundi.simu || !fundi.huduma || !fundi.eneo) {
+  if (!fundi.jina || !fundi.simu || !fundi.ujuzi || !fundi.eneo) {
     throw new Error("Tafadhali jaza jina, simu, ujuzi na eneo.");
   }
 
   if (HAS_SUPABASE) {
     await sbRequest("/mafundi", { method: "POST", body: fundi, prefer: "return=minimal" });
   } else {
-    console.info("Supabase haipo — fundi wa mfano:", fundi);
+    console.info("Supabase haipo \u2014 fundi wa mfano:", fundi);
   }
 
   return fundi;
@@ -410,14 +438,14 @@ function init() {
       const btn = formOmb.querySelector("button[type=submit]");
       btn.disabled = true;
       out.className = "feedback";
-      out.textContent = "Inatuma…";
+      out.textContent = "Inatuma\u2026";
       try {
         const match = await submitOmb(new FormData(formOmb));
         out.className = "feedback ok";
         out.textContent = match
-          ? `Asante! Ombi limetumwa. Tunakufungulia WhatsApp ya ${match.jina}…`
+          ? `Asante! Ombi limetumwa. Tunakufungulia WhatsApp ya ${match.jina}\u2026`
           : "Asante! Ombi lako limepokelewa. Fundi atakupigia hivi punde.";
-        showToast(match ? "Ombi limetumwa — WhatsApp inafunguka" : "Ombi limepokelewa");
+        showToast(match ? "Ombi limetumwa \u2014 WhatsApp inafunguka" : "Ombi limepokelewa");
         formOmb.reset();
       } catch (err) {
         console.error(err);
@@ -438,12 +466,12 @@ function init() {
       const btn = formFundi.querySelector("button[type=submit]");
       btn.disabled = true;
       out.className = "feedback";
-      out.textContent = "Inatuma…";
+      out.textContent = "Inatuma\u2026";
       try {
         const f = await submitFundi(new FormData(formFundi));
         out.className = "feedback ok";
         out.textContent = `Karibu NIITE, ${f.jina}! Wasifu wako umeingizwa.`;
-        showToast("Umejiunga kama fundi 🎉");
+        showToast("Umejiunga kama fundi \uD83C\uDF89");
         formFundi.reset();
         await loadMafundi();
       } catch (err) {
