@@ -1,98 +1,130 @@
-# NIITE — APK
+# NIITE — Pata Fundi wa Kila Aina
 
-NIITE ni app ya Android iliyojengwa kwa **Capacitor**: HTML, CSS na JavaScript
-zote zimefungwa **ndani** ya APK. App haifungui tovuti yoyote — inafanya kazi
-kutoka kwenye simu yenyewe, na inazungumza moja kwa moja na Supabase.
+App ya kuunganisha mteja na fundi: umeme, maji, simu, useremala, kila aina. Mteja anatafuta, anaona mafundi, na kupiga WhatsApp moja kwa moja.
 
-Hakuna kitu cha Vercel kinachohitajika kwa APK hii.
+Kwa sasa inafanya kazi kwenye **https://niite.vercel.app** (tovuti/PWA), na mradi huu unaweza kujengwa kama **APK ya Android** app yenyewe — faili zote zimefungwa ndani, inasoma Supabase moja kwa moja, haitegemei Vercel.
 
 ---
 
-## Njia 1 — GitHub Codespaces (rahisi zaidi, dakika ~5)
+## Kile kilichomo
 
-Codespaces ina Node, Java 17 na Android SDK tayari. Hakuna kuinstall kitu
-kwenye kompyuta yako.
+| Faili | Kazi |
+|---|---|
+| `index.html` | Muundo wa app (screens, tab bar ya chini) |
+| `styles.css` | Muonekano wa app ya mkononi |
+| `app.js` | Mantiki yote: Supabase, utafutaji, fomu, WhatsApp |
+| `config.js` | Supabase URL na anon key |
+| `manifest.json` | Jina, rangi, icons za app |
+| `sw.js` | Service worker (inaifanya ifanye kazi bila internet) |
+| `package.json` | Capacitor + scripts za build |
+| `capacitor.config.json` | Config ya Android (webDir: `www`) |
+| `scripts/prepare-www.js` | Inanakili faili za app kwenye `www/` |
+| `github-workflow-android.yml` | Workflow ya GitHub Actions (tazama chini) |
+
+---
+
+## Sehemu ya 1 — Endesha kwenye browser (kila kitu tayari)
+
+```bash
+npm install
+npx serve .
+```
+
+Au fungua `index.html` moja kwa moja kwenye browser (haina build step).
+
+---
+
+## Sehemu ya 2 — Kupata APK (desktop inahitajika)
+
+APK ni faili la Android. Kupata APK **lazima** kujengwa kwa Android SDK — hakuna njia ya kuepuka hilo. Kuna njia mbili; chagua moja.
+
+### Njia A — Codespaces (rahisi zaidi, hakuna kuinstall kitu)
+
+Inaendesha kwenye browser, kwenye kompyuta yenye Linux + Java 17 + Android SDK tayari.
 
 1. Fungua https://github.com/MAXNIITE/NIITE
-2. Bonyeza **Code** → tab **Codespaces** → **Create codespace on main**
-3. Subiri sekunde 30–60 ikifungua
-4. Kwenye terminal (chini ya screen), weka amri mbili hizi:
+2. Bonyeza kitufe cha kijani **Code** → tab **Codespaces** → **Create codespace on main**
+3. Subiri ~60 sekunde. Dirisha la VS Code linafunguka na terminal ya chini (`bash`).
+4. Andika kwenye terminal:
 
-```
+```bash
 npm install
 npm run apk
 ```
 
-5. Build inachukua dakika 2–5 (mara ya kwanza Gradle inapakua vitu).
-   Ikisha, APK iko hapa:
+5. Subiri dakika 5-10 (mara ya kwanza inapakua Gradle + dependencies).
+6. Pakua APK: upande wa kushoto fungua
+   `android` → `app` → `build` → `outputs` → `apk` → `debug` → **`app-debug.apk`**
+   Right-click → **Download**.
 
-```
-android/app/build/outputs/apk/debug/app-debug.apk
-```
+### Njia B — Android Studio kwenye desktop
 
-6. Kwenye file explorer ya kushoto, fungua `android/app/build/outputs/apk/debug/`
-   → **right-click** kwenye `app-debug.apk` → **Download**
+1. Pakua Android Studio bure: https://developer.android.com/studio
+2. Install (inachukua ~10GB, inaweka Java na Android SDK yenyewe).
+3. Fungua terminal kwenye folder ya mradi (Git Bash / Terminal):
 
-Hiyo ni APK yako. Iinstall kwenye simu (unahitaji kuruhusu "install from unknown
-sources"), ifungue, na inafanya kazi.
-
----
-
-## Njia 2 — Android Studio (kompyuta yako)
-
-1. Install https://developer.android.com/studio
-2. `git clone https://github.com/MAXNIITE/NIITE.git`
-3. Kwenye terminal ya folder hiyo:
-
-```
+```bash
 npm install
-npm run sync
+npm run www
+npx cap add android
+npx cap sync android
 npx cap open android
 ```
 
-4. Android Studio inafunguka → **Build** → **Build Bundle(s) / APK(s)** → **Build APK(s)**
-5. APK iko kwenye `android/app/build/outputs/apk/debug/app-debug.apk`
+4. Android Studio inafunguka. Subiri "Gradle sync" ikamilike.
+5. **Build** → **Build Bundle(s) / APK(s)** → **Build APK(s)**
+6. Bonyeza **locate** kwenye taarifa inayotokea. APK iko:
+   `android/app/build/outputs/apk/debug/app-debug.apk`
+
+### Kuinstall APK kwenye simu
+
+1. Hamisha `app-debug.apk` kwenye simu (WhatsApp, USB, Google Drive — lolote).
+2. Fungua faili hilo kwenye simu.
+3. Android itaomba ruhusa **"Install unknown apps"** — idhinishe kwa app uliyotumia (mfano Chrome au Files).
+4. Bonyeza **Install**. App **NIITE** inaonekana kwenye home screen.
+
+### Kujenga APK kila push (GitHub Actions)
+
+Faili la `github-workflow-android.yml` liko kwenye mzizi wa mradi kwa sababu bot ya ChatGiZa haiwezi kupush moja kwa moja ndani ya `.github/workflows/`. Ili kuiwasha:
+
+1. Fungua https://github.com/MAXNIITE/NIITE
+2. Bonyeza **Add file** → **Create new file**
+3. Kwenye jina la faili andika: `.github/workflows/android.yml`
+4. Fungua `github-workflow-android.yml`, nakili maudhui yote, na ubandike kwenye faili jipya
+5. Bonyeza **Commit changes**
+6. Kila push baada ya hapo inajenga APK. Pakua kutoka tab **Actions** → deployment → **Artifacts** → `niite-debug-apk`
 
 ---
 
-## Njia 3 — GitHub Actions (kila push inajenga APK)
+## Sehemu ya 3 — PWA (bila APK, kwa simu moja kwa moja)
 
-Faili la workflow iko kwenye `github-workflow-android.yml` (mzizi wa repo).
+Kama hutaki APK, app inaweza kuwekwa kwenye home screen ya simu yoyote:
 
-1. Unda folder `.github/workflows` kama haipo
-2. Hamisha `github-workflow-android.yml` ndani yake, ubadilishe jina → `android.yml`
-3. Commit. Kila push itajenga APK
-4. Pakua kutoka tab **Actions** → run ya mwisho → **Artifacts** → `niite-apk`
-
-*(Ushauri: hamisha faili hili mwenyewe kupitia UI ya GitHub — "Add file" →
-"Create new file" → weka jina `.github/workflows/android.yml` → nakili maudhui.)*
+1. Fungua `https://niite.vercel.app` kwenye **Chrome ya Android**
+2. Bonyeza menyu (vitone vitatu juu kulia)
+3. Chagua **"Add to Home screen"** / **"Install app"**
+4. App inaonekana kwenye home screen, inafunguka fullscreen, bila address bar
 
 ---
 
-## Amri muhimu
+## Database (Supabase)
 
-| Amri | Inafanya nini |
-|---|---|
-| `npm install` | Inapakua dependencies |
-| `npm run sync` | Inanakili faili za app kwenda `www/` na kusync na Android |
-| `npm run apk` | Inanakili, inasync, na kujenga APK |
-| `npx cap open android` | Inafungua Android Studio |
+Project ref: `ihrlcoyijrtxwleongdl`
 
-Baada ya kubadilisha `index.html`, `app.js`, `styles.css` au `config.js`,
-weka tena `npm run apk` — script inanakili faili mpya ndani ya APK yenyewe.
+Tables mbili:
 
----
+**`mafundi`** — jina, ujuzi, eneo, simu, kiwango, uzoefu, kuhusu, alama, kazi, created_at
 
-## Database
+**`maombi`** — mteja_jina, mteja_simu, huduma, eneo, maelezo, created_at
 
-- Supabase project: `ihrlcoyijrtxwleongdl`
-- Tables: `mafundi` (mafundi wote), `maombi` (maombi ya wateja)
-- Connection iko kwenye `config.js` — anon key, salama kwenye app kwa kuwa
-  Row Level Security inalinda data kwenye database yenyewe.
+RLS imewashwa:
+- `mafundi`: kusoma ni kwa wote (mtu yeyote anaweza kuona fundi); kuandika ni kwa mtumiaji aliyeingia
+- `maombi`: kuandika ni kwa wote (mteja hatakiwi kuwa na akaunti); kusoma ni kwa mtumiaji aliyeingia
 
-Mafundi hujisajili kutoka ndani ya app, na kila ombi la mteja linaingia kwenye
-table `maombi` kisha linafungua WhatsApp ya fundi anayelingana.
+Credentials ziko `config.js` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`).
 
 ---
 
-NIITE — bidhaa ya WellXAI.
+## Kumbuka kuhusu usalama
+
+Key iliyo kwenye `config.js` ni **anon / public** key — hiyo ni sahihi kuwa kwenye app inayotumia browser. **Service role key isiwekwe kwenye faili hili kamwe** — hiyo ina mamlaka kamili juu ya database na haipaswi kufika kwa mtumiaji.
