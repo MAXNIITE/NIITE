@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>NIITE — Pata fundi wa kila aina, haraka</title>
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<header class="site-header">
+  <div class="wrap header-inner">
+    <a class="brand" href="#top">
+      <span class="brand-mark">N</span>
+      <span class="brand-text">NIITE</span>
+    </a>
+    <nav class="nav">
+      <a href="#mafundi">Mafundi</a>
+      <a href="#ombi">Omba Fundi</a>
+      <a href="#jisajili">Jiunge kama Fundi</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap hero-inner">
+      <div class="hero-copy">
+        <p class="eyebrow">Fundi yeyote. Eneo lolote. Muda wowote.</p>
+        <h1>Umeme umekatika? Mafuta yanamwagika? <span class="hl">Niite fundi.</span></h1>
+        <p class="lede">
+          NIITE inakuunganisha na mafundi walio karibu nawe — umeme, maji, simu, useremala,
+          uashi, kupaka rangi, kulekebisha vyombo na zaidi. Tuma ombi, fundi atakupigia.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#ombi">Omba fundi sasa</a>
+          <a class="btn btn-ghost" href="#jisajili">Mimi ni fundi</a>
+        </div>
+        <ul class="hero-stats">
+          <li><strong id="stat-mafundi">—</strong><span>Mafundi walioandikishwa</span></li>
+          <li><strong id="stat-kazi">—</strong><span>Kazi zilizokamilika</span></li>
+          <li><strong id="stat-huduma">—</strong><span>Aina za huduma</span></li>
+        </ul>
+      </div>
+      <div class="hero-card">
+        <h3>Unahitaji nini?</h3>
+        <div class="chips" id="chips-haraka"></div>
+        <p class="muted small">Chagua huduma hapo juu — tutakuonyesha mafundi waliopo karibu nawe.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="ombi" class="section">
+    <div class="wrap narrow">
+      <h2 class="section-title">Omba fundi</h2>
+      <p class="section-sub">Jaza kidogo — jina, namba ya simu, eneo na tatizo. Bila akaunti, bila usumbufu.</p>
+
+      <form id="form-ombi" class="card form">
+        <div class="grid-2">
+          <label>
+            Jina lako
+            <input type="text" name="jina" placeholder="mf. Asha Juma" required />
+          </label>
+          <label>
+            Namba ya simu
+            <input type="tel" name="simu" placeholder="mf. 0712 345 678" required />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label>
+            Aina ya fundi
+            <select name="huduma" id="select-huduma" required>
+              <option value="">Chagua huduma…</option>
+            </select>
+          </label>
+          <label>
+            Eneo / mtaa
+            <input type="text" name="eneo" placeholder="mf. Kariakoo, Dar" required />
+          </label>
+        </div>
+
+        <label>
+          Eleza tatizo kwa ufupi
+          <textarea name="maelezo" rows="4" placeholder="mf. Nimepoteza umeme jikoni, switch inatoa moshi." required></textarea>
+        </label>
+
+        <label class="check">
+          <input type="checkbox" name="haraka" />
+          <span>Nahitaji haraka sana (dharura)</span>
+        </label>
+
+        <button type="submit" class="btn btn-primary full">Tuma ombi</button>
+        <p id="ombi-feedback" class="feedback" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="jisajili" class="section alt">
+    <div class="wrap narrow">
+      <h2 class="section-title">Jiunge kama fundi</h2>
+      <p class="section-sub">Una ujuzi? Jisajili na upate wateja kila siku. Bila malipo ya kujiunga.</p>
+
+      <form id="form-fundi" class="card form">
+        <div class="grid-2">
+          <label>
+            Jina kamili
+            <input type="text" name="jina" placeholder="mf. Mwinyi Hamisi" required />
+          </label>
+          <label>
+            Namba ya simu (WhatsApp)
+            <input type="tel" name="simu" placeholder="mf. 0712 345 678" required />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label>
+            Ujuzi wako
+            <select name="huduma" id="select-huduma-fundi" required>
+              <option value="">Chagua ujuzi…</option>
+            </select>
+          </label>
+          <label>
+            Eneo unalofanyia kazi
+            <input type="text" name="eneo" placeholder="mf. Kinondoni" required />
+          </label>
+        </div>
+
+        <div class="grid-2">
+          <label>
+            Uzoefu (miaka)
+            <input type="number" name="uzoefu" min="0" max="60" placeholder="mf. 5" required />
+          </label>
+          <label>
+            Bei ya kuanzia (TSh)
+            <input type="number" name="bei" min="0" step="500" placeholder="mf. 15000" />
+          </label>
+        </div>
+
+        <label>
+          Kwa nini mteja akuchague?
+          <textarea name="maelezo" rows="3" placeholder="mf. Nafanya kazi usiku kucha, nina zana zangu zote."></textarea>
+        </label>
+
+        <button type="submit" class="btn btn-primary full">Jiunge sasa</button>
+        <p id="fundi-feedback" class="feedback" role="status"></p>
+      </form>
+    </div>
+  </section>
+
+  <section id="mafundi" class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <h2 class="section-title left">Mafundi waliopo</h2>
+          <p class="section-sub left">Chagua huduma au tafuta kwa jina / eneo.</p>
+        </div>
+        <div class="filters">
+          <input type="search" id="tafuta" placeholder="Tafuta fundi au eneo…" />
+          <select id="filter-huduma">
+            <option value="">Huduma zote</option>
+          </select>
+        </div>
+      </div>
+      <div id="orodha-mafundi" class="cards"></div>
+      <p id="orodha-hali" class="muted center"></p>
+    </div>
+  </section>
+
+  <section class="section alt">
+    <div class="wrap narrow center">
+      <h2 class="section-title">Aina za huduma</h2>
+      <div id="orodha-huduma" class="service-grid"></div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap footer-inner">
+    <p><strong>NIITE</strong> — pata fundi, haraka.</p>
+    <p class="muted small">Jengo la WellXAI.</p>
+  </div>
+</footer>
+
+<div id="toast" class="toast" role="status"></div>
+
+<script src="app.js"></script>
+</body>
+</html>
