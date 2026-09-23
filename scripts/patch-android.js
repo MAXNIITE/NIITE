@@ -22,22 +22,38 @@ if (!fs.existsSync(ANDROID)) {
 
 /* ---------- 1. MainActivity: hide the status bar ---------- */
 
-const activityPath = path.join(
-  ANDROID,
-  "app/src/main/java/com/wellxai/niite/MainActivity.java"
-);
-const activityDir = path.dirname(activityPath);
-
-if (!fs.existsSync(activityDir)) {
-  fs.mkdirSync(activityDir, { recursive: true });
+function findMainActivity(dir) {
+  if (!fs.existsSync(dir)) return null;
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      const found = findMainActivity(full);
+      if (found) return found;
+    } else if (entry.name === "MainActivity.java") {
+      return full;
+    }
+  }
+  return null;
 }
+
+const activityPath = findMainActivity(path.join(ANDROID, "app/src/main/java"));
+
+if (!activityPath) {
+  console.log("  ! MainActivity.java haipo, imerukwa");
+  process.exit(0);
+}
+
+const activityPackage = (() => {
+  const src = fs.readFileSync(activityPath, "utf8");
+  const match = src.match(/package\s+([\w.]+);/);
+  return match ? match[1] : "com.wellxai.niite";
+})();
 
 fs.writeFileSync(
   activityPath,
-  `package com.wellxai.niite;
+  `package ${activityPackage};
 
 import android.os.Bundle;
-import android.view.View;
 import android.view.WindowManager;
 import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
