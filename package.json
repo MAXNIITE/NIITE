@@ -5,6 +5,7 @@
   "private": true,
   "type": "commonjs",
   "scripts": {
+    "postinstall": "node scripts/prepare-www.js",
     "prepare:www": "node scripts/prepare-www.js",
     "add:android": "cap add android",
     "sync": "npm run prepare:www && cap sync android",
