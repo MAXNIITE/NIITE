@@ -2,187 +2,230 @@
 <html lang="sw">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>NIITE — Pata fundi wa kila aina, haraka</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1" />
+<meta name="theme-color" content="#0f9d76" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="mobile-web-app-capable" content="yes" />
+<title>NIITE — Pata fundi, haraka</title>
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
 
-<header class="site-header">
-  <div class="wrap header-inner">
-    <a class="brand" href="#top">
-      <span class="brand-mark">N</span>
-      <span class="brand-text">NIITE</span>
-    </a>
-    <nav class="nav">
-      <a href="#mafundi">Mafundi</a>
-      <a href="#ombi">Omba Fundi</a>
-      <a href="#jisajili">Jiunge kama Fundi</a>
-    </nav>
-  </div>
-</header>
+<div class="phone">
+  <div class="app">
 
-<main id="top">
-
-  <section class="hero">
-    <div class="wrap hero-inner">
-      <div class="hero-copy">
-        <p class="eyebrow">Fundi yeyote. Eneo lolote. Muda wowote.</p>
-        <h1>Umeme umekatika? Mafuta yanamwagika? <span class="hl">Niite fundi.</span></h1>
-        <p class="lede">
-          NIITE inakuunganisha na mafundi walio karibu nawe — umeme, maji, simu, useremala,
-          uashi, kupaka rangi, kulekebisha vyombo na zaidi. Tuma ombi, fundi atakupigia.
-        </p>
-        <div class="hero-actions">
-          <a class="btn btn-primary" href="#ombi">Omba fundi sasa</a>
-          <a class="btn btn-ghost" href="#jisajili">Mimi ni fundi</a>
+    <header class="app-bar">
+      <div class="app-bar-row">
+        <div class="app-brand">
+          <span class="brand-mark">N</span>
+          <div class="brand-stack">
+            <span class="brand-name">NIITE</span>
+            <span class="brand-sub" id="app-sub">Fundi wa kila aina</span>
+          </div>
         </div>
-        <ul class="hero-stats">
-          <li><strong id="stat-mafundi">—</strong><span>Mafundi walioandikishwa</span></li>
-          <li><strong id="stat-kazi">—</strong><span>Kazi zilizokamilika</span></li>
-          <li><strong id="stat-huduma">—</strong><span>Aina za huduma</span></li>
-        </ul>
+        <button type="button" class="icon-btn" id="btn-notify" aria-label="Taarifa">
+          <span class="dot"></span>&#128276;
+        </button>
       </div>
-      <div class="hero-card">
-        <h3>Unahitaji nini?</h3>
-        <div class="chips" id="chips-haraka"></div>
-        <p class="muted small">Chagua huduma hapo juu — tutakuonyesha mafundi waliopo karibu nawe.</p>
-      </div>
-    </div>
-  </section>
+    </header>
 
-  <section id="ombi" class="section">
-    <div class="wrap narrow">
-      <h2 class="section-title">Omba fundi</h2>
-      <p class="section-sub">Jaza kidogo — jina, namba ya simu, eneo na tatizo. Bila akaunti, bila usumbufu.</p>
+    <main class="screens" id="screens">
 
-      <form id="form-ombi" class="card form">
-        <div class="grid-2">
-          <label>
-            Jina lako
-            <input type="text" name="jina" placeholder="mf. Asha Juma" required />
-          </label>
-          <label>
-            Namba ya simu
-            <input type="tel" name="simu" placeholder="mf. 0712 345 678" required />
-          </label>
+      <!-- ================= HOME ================= -->
+      <section class="screen active" id="screen-home" data-screen="home">
+        <div class="scroll">
+          <div class="hero-card">
+            <p class="hero-eyebrow">Umeme · Maji · Simu · Useremala · Zaidi</p>
+            <h1 class="hero-title">Karibu NIITE</h1>
+            <p class="hero-text">Fundi yeyote, eneo lolote. Tuma ombi, uunganishwe na fundi aliye karibu nawe mara moja.</p>
+            <button type="button" class="btn btn-light full" data-go="ombi">Omba fundi sasa</button>
+          </div>
+
+          <div class="quick-grid">
+            <button type="button" class="quick" data-huduma="umeme">
+              <span class="quick-icon">&#9889;</span><span>Umeme</span>
+            </button>
+            <button type="button" class="quick" data-huduma="maji">
+              <span class="quick-icon">&#128167;</span><span>Maji</span>
+            </button>
+            <button type="button" class="quick" data-huduma="simu">
+              <span class="quick-icon">&#128241;</span><span>Simu</span>
+            </button>
+            <button type="button" class="quick" data-huduma="useremala">
+              <span class="quick-icon">&#129698;</span><span>Useremala</span>
+            </button>
+            <button type="button" class="quick" data-huduma="uashi">
+              <span class="quick-icon">&#129521;</span><span>Uashi</span>
+            </button>
+            <button type="button" class="quick" data-huduma="AC">
+              <span class="quick-icon">&#10052;</span><span>AC &amp; Friji</span>
+            </button>
+            <button type="button" class="quick" data-huduma="rangi">
+              <span class="quick-icon">&#127912;</span><span>Rangi</span>
+            </button>
+            <button type="button" class="quick" data-go="huduma">
+              <span class="quick-icon">&#10133;</span><span>Zaidi</span>
+            </button>
+          </div>
+
+          <div class="stat-row" id="stat-row">
+            <div class="stat"><strong id="stat-mafundi">&mdash;</strong><span>Mafundi</span></div>
+            <div class="stat"><strong id="stat-kazi">&mdash;</strong><span>Kazi</span></div>
+            <div class="stat"><strong id="stat-huduma">&mdash;</strong><span>Huduma</span></div>
+          </div>
+
+          <div class="row-head">
+            <h2 class="row-title">Mafundi karibu nawe</h2>
+            <button type="button" class="link-btn" data-go="mafundi">Ona wote</button>
+          </div>
+          <div id="home-mafundi" class="mini-list"></div>
+
+          <div class="row-head">
+            <h2 class="row-title">Aina za huduma</h2>
+          </div>
+          <div id="orodha-huduma" class="service-grid"></div>
         </div>
+      </section>
 
-        <div class="grid-2">
-          <label>
-            Aina ya fundi
-            <select name="huduma" id="select-huduma" required>
-              <option value="">Chagua huduma…</option>
-            </select>
-          </label>
-          <label>
-            Eneo / mtaa
-            <input type="text" name="eneo" placeholder="mf. Kariakoo, Dar" required />
-          </label>
-        </div>
-
-        <label>
-          Eleza tatizo kwa ufupi
-          <textarea name="maelezo" rows="4" placeholder="mf. Nimepoteza umeme jikoni, switch inatoa moshi." required></textarea>
-        </label>
-
-        <label class="check">
-          <input type="checkbox" name="haraka" />
-          <span>Nahitaji haraka sana (dharura)</span>
-        </label>
-
-        <button type="submit" class="btn btn-primary full">Tuma ombi</button>
-        <p id="ombi-feedback" class="feedback" role="status"></p>
-      </form>
-    </div>
-  </section>
-
-  <section id="jisajili" class="section alt">
-    <div class="wrap narrow">
-      <h2 class="section-title">Jiunge kama fundi</h2>
-      <p class="section-sub">Una ujuzi? Jisajili na upate wateja kila siku. Bila malipo ya kujiunga.</p>
-
-      <form id="form-fundi" class="card form">
-        <div class="grid-2">
-          <label>
-            Jina kamili
-            <input type="text" name="jina" placeholder="mf. Mwinyi Hamisi" required />
-          </label>
-          <label>
-            Namba ya simu (WhatsApp)
-            <input type="tel" name="simu" placeholder="mf. 0712 345 678" required />
-          </label>
-        </div>
-
-        <div class="grid-2">
-          <label>
-            Ujuzi wako
-            <select name="huduma" id="select-huduma-fundi" required>
-              <option value="">Chagua ujuzi…</option>
-            </select>
-          </label>
-          <label>
-            Eneo unalofanyia kazi
-            <input type="text" name="eneo" placeholder="mf. Kinondoni" required />
-          </label>
-        </div>
-
-        <div class="grid-2">
-          <label>
-            Uzoefu (miaka)
-            <input type="number" name="uzoefu" min="0" max="60" placeholder="mf. 5" required />
-          </label>
-          <label>
-            Bei ya kuanzia (TSh)
-            <input type="number" name="bei" min="0" step="500" placeholder="mf. 15000" />
-          </label>
-        </div>
-
-        <label>
-          Kwa nini mteja akuchague?
-          <textarea name="maelezo" rows="3" placeholder="mf. Nafanya kazi usiku kucha, nina zana zangu zote."></textarea>
-        </label>
-
-        <button type="submit" class="btn btn-primary full">Jiunge sasa</button>
-        <p id="fundi-feedback" class="feedback" role="status"></p>
-      </form>
-    </div>
-  </section>
-
-  <section id="mafundi" class="section">
-    <div class="wrap">
-      <div class="section-head">
-        <div>
-          <h2 class="section-title left">Mafundi waliopo</h2>
-          <p class="section-sub left">Chagua huduma au tafuta kwa jina / eneo.</p>
-        </div>
-        <div class="filters">
-          <input type="search" id="tafuta" placeholder="Tafuta fundi au eneo…" />
-          <select id="filter-huduma">
+      <!-- ================= MAFUNDI ================= -->
+      <section class="screen" id="screen-mafundi" data-screen="mafundi">
+        <div class="search-bar">
+          <input type="search" id="tafuta" placeholder="Tafuta fundi, ujuzi au eneo&hellip;" />
+          <select id="filter-huduma" aria-label="Chuja kwa huduma">
             <option value="">Huduma zote</option>
           </select>
         </div>
-      </div>
-      <div id="orodha-mafundi" class="cards"></div>
-      <p id="orodha-hali" class="muted center"></p>
-    </div>
-  </section>
+        <div class="scroll">
+          <div id="orodha-mafundi" class="mini-list"></div>
+          <p id="orodha-hali" class="muted center small"></p>
+        </div>
+      </section>
 
-  <section class="section alt">
-    <div class="wrap narrow center">
-      <h2 class="section-title">Aina za huduma</h2>
-      <div id="orodha-huduma" class="service-grid"></div>
-    </div>
-  </section>
+      <!-- ================= OMBA ================= -->
+      <section class="screen" id="screen-ombi" data-screen="ombi">
+        <div class="scroll">
+          <p class="screen-lede">Jaza kidogo &mdash; jina, namba, eneo na tatizo. Bila akaunti, bila usumbufu.</p>
+          <form id="form-ombi" class="form">
+            <label>Jina lako
+              <input type="text" name="jina" placeholder="mf. Asha Juma" required />
+            </label>
+            <label>Namba ya simu
+              <input type="tel" name="simu" inputmode="tel" placeholder="mf. 0712 345 678" required />
+            </label>
+            <label>Aina ya fundi
+              <select name="huduma" id="select-huduma" required>
+                <option value="">Chagua huduma&hellip;</option>
+              </select>
+            </label>
+            <label>Eneo / mtaa
+              <input type="text" name="eneo" placeholder="mf. Kariakoo, Dar" required />
+            </label>
+            <label>Eleza tatizo kwa ufupi
+              <textarea name="maelezo" rows="3" placeholder="mf. Nimepoteza umeme jikoni, switch inatoa moshi." required></textarea>
+            </label>
+            <label class="check">
+              <input type="checkbox" name="haraka" />
+              <span>Nahitaji haraka sana (dharura)</span>
+            </label>
+            <button type="submit" class="btn btn-primary full">Tuma ombi</button>
+            <p id="ombi-feedback" class="feedback" role="status"></p>
+          </form>
 
-</main>
+          <p class="screen-lede">Una ujuzi? Jiunge na upate wateja kila siku. Bila malipo.</p>
+          <form id="form-fundi" class="form">
+            <label>Jina kamili
+              <input type="text" name="jina" placeholder="mf. Mwinyi Hamisi" required />
+            </label>
+            <label>Namba ya simu (WhatsApp)
+              <input type="tel" name="simu" inputmode="tel" placeholder="mf. 0712 345 678" required />
+            </label>
+            <label>Ujuzi wako
+              <select name="huduma" id="select-huduma-fundi" required>
+                <option value="">Chagua ujuzi&hellip;</option>
+              </select>
+            </label>
+            <label>Eneo unalofanyia kazi
+              <input type="text" name="eneo" placeholder="mf. Kinondoni" required />
+            </label>
+            <div class="grid-2">
+              <label>Uzoefu (miaka)
+                <input type="number" name="uzoefu" min="0" max="60" placeholder="5" required />
+              </label>
+              <label>Bei ya kuanzia
+                <input type="number" name="bei" min="0" step="500" placeholder="15000" />
+              </label>
+            </div>
+            <label>Kwa nini mteja akuchague?
+              <textarea name="maelezo" rows="3" placeholder="mf. Nina zana zangu zote, nafanya kazi usiku kucha."></textarea>
+            </label>
+            <button type="submit" class="btn btn-primary full">Jiunge sasa</button>
+            <p id="fundi-feedback" class="feedback" role="status"></p>
+          </form>
+        </div>
+      </section>
 
-<footer class="site-footer">
-  <div class="wrap footer-inner">
-    <p><strong>NIITE</strong> — pata fundi, haraka.</p>
-    <p class="muted small">Jengo la WellXAI.</p>
+      <!-- ================= WASIFU ================= -->
+      <section class="screen" id="screen-wasifu" data-screen="wasifu">
+        <div class="scroll">
+          <div class="profile-card">
+            <div class="avatar lg">N</div>
+            <h2 class="profile-name">Karibu NIITE</h2>
+            <p class="profile-sub">Hujajisajili bado. Jisajili kama fundi ili wateja wakupate, au omba fundi bila akaunti.</p>
+            <button type="button" class="btn btn-light full" data-go="ombi">Jiunge kama fundi</button>
+          </div>
+
+          <div class="menu-list">
+            <button type="button" class="menu-item" data-go="ombi">
+              <span class="menu-icon">&#128222;</span>
+              <span class="menu-label">Omba fundi</span>
+              <span class="menu-arrow">&rsaquo;</span>
+            </button>
+            <button type="button" class="menu-item" data-go="mafundi">
+              <span class="menu-icon">&#128101;</span>
+              <span class="menu-label">Mafundi wote</span>
+              <span class="menu-arrow">&rsaquo;</span>
+            </button>
+            <button type="button" class="menu-item" data-go="huduma">
+              <span class="menu-icon">&#128295;</span>
+              <span class="menu-label">Aina za huduma</span>
+              <span class="menu-arrow">&rsaquo;</span>
+            </button>
+          </div>
+
+          <p class="muted center small">NIITE &mdash; bidhaa ya WellXAI.</p>
+        </div>
+      </section>
+
+      <!-- ================= HUDUMA (zote) ================= -->
+      <section class="screen" id="screen-huduma" data-screen="huduma">
+        <div class="scroll">
+          <p class="screen-lede">Chagua huduma uone mafundi wanaoitolea.</p>
+          <div id="orodha-huduma-zote" class="service-grid"></div>
+        </div>
+      </section>
+
+    </main>
+
+    <nav class="tab-bar" id="tab-bar">
+      <button type="button" class="tab active" data-go="home">
+        <span class="tab-icon">&#127968;</span><span class="tab-label">Nyumbani</span>
+      </button>
+      <button type="button" class="tab" data-go="mafundi">
+        <span class="tab-icon">&#128101;</span><span class="tab-label">Mafundi</span>
+      </button>
+      <button type="button" class="tab tab-center" data-go="ombi">
+        <span class="tab-fab">&#43;</span><span class="tab-label">Omba</span>
+      </button>
+      <button type="button" class="tab" data-go="huduma">
+        <span class="tab-icon">&#128295;</span><span class="tab-label">Huduma</span>
+      </button>
+      <button type="button" class="tab" data-go="wasifu">
+        <span class="tab-icon">&#128100;</span><span class="tab-label">Wasifu</span>
+      </button>
+    </nav>
+
   </div>
-</footer>
+</div>
 
 <div id="toast" class="toast" role="status"></div>
 
