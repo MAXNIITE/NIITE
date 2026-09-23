@@ -1,0 +1,15 @@
+{
+  "name": "NIITE — Fundi wa kila aina",
+  "short_name": "NIITE",
+  "description": "Pata fundi wa umeme, maji, simu, useremala na zaidi. Tuma ombi, uunganishwe haraka.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0f9d76",
+  "theme_color": "#0f9d76",
+  "lang": "sw",
+  "dir": "ltr",
+  "categories": ["business", "utilities", "lifestyle"],
+  "icons": []
+}
