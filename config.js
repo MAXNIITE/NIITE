@@ -5,4 +5,4 @@
    actually read and write. Until a real key is present the app runs on
    the built-in demo list of fundis. */
 window.NIITE_SUPABASE_URL = "https://ihrlcoyijrtxwleongdl.supabase.co";
-window.NIITE_SUPABASE_ANON_KEY = "sb_publishable_VLjMVwh7JJA7zmCOOoVMcQ_-Whl_6O8";
+window.NIITE_SUPABASE_ANON_KEY = "sb_publishable_af0GtFa-3bqoAfZa8zYrIQ_PoKUpnCc";
