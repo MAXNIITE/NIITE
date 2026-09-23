@@ -109,6 +109,26 @@ function waNumber(simu) {
   return n;
 }
 
+/* True when the app is running inside the Android APK (Capacitor).
+   Inside the APK a plain link would open WhatsApp *inside* the app
+   shell, so we must hand the URL to Android itself. */
+function isNativeApp() {
+  return Boolean(window.Capacitor && window.Capacitor.isNativePlatform
+    ? window.Capacitor.isNativePlatform()
+    : window.Capacitor);
+}
+
+function openWhatsApp(url) {
+  if (isNativeApp()) {
+    // Android understands the intent scheme and launches the real app.
+    const stripped = url.replace(/^https?:\/\//, "");
+    window.location.href = "intent://" + stripped + "#Intent;scheme=https;package=com.whatsapp;S.browser_fallback_url=" + encodeURIComponent(url) + ";end";
+    setTimeout(() => { window.open(url, "_system"); }, 1200);
+  } else {
+    window.open(url, "_blank", "noopener");
+  }
+}
+
 function formatKazi(n) {
   const v = Number(n) || 0;
   if (v >= 1000) return (v / 1000).toFixed(1).replace(/\.0$/, "") + "k";
@@ -220,6 +240,8 @@ function fundiCard(f) {
     `Habari ${f.jina}! Nimekupata kupitia NIITE. Nahitaji fundi wa ${hudumaJina(hid)}.`
   );
 
+  const waUrl = `https://wa.me/${waNumber(f.simu)}?text=${msg}`;
+
   return `
     <article class="fundi-card">
       <div class="fundi-top">
@@ -233,8 +255,7 @@ function fundiCard(f) {
       ${f.kuhusu ? `<p class="fundi-desc">${escapeHtml(f.kuhusu)}</p>` : ""}
       <div class="fundi-foot">
         ${rating}
-        <a class="btn btn-primary btn-sm" target="_blank" rel="noopener"
-           href="https://wa.me/${waNumber(f.simu)}?text=${msg}">Wasiliana</a>
+        <button type="button" class="btn btn-primary btn-sm" data-wa="${escapeHtml(waUrl)}">Wasiliana</button>
       </div>
     </article>
   `;
@@ -356,7 +377,7 @@ async function submitOmb(fd) {
       (haraka ? " (DHARURA)" : "") +
       ` \u2014 namba yangu ni ${ombi.mteja_simu}. Nimekupata kupitia NIITE.`
     );
-    window.open(`https://wa.me/${waNumber(match.simu)}?text=${text}`, "_blank", "noopener");
+    openWhatsApp(`https://wa.me/${waNumber(match.simu)}?text=${text}`);
   }
 
   return match;
@@ -416,6 +437,12 @@ function init() {
     const notify = e.target.closest("#btn-notify");
     if (notify) {
       showToast("Hakuna taarifa mpya kwa sasa.");
+      return;
+    }
+
+    const waBtn = e.target.closest("[data-wa]");
+    if (waBtn) {
+      openWhatsApp(waBtn.dataset.wa);
     }
   });
 

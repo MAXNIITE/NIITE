@@ -8,8 +8,6 @@
 <meta name="mobile-web-app-capable" content="yes" />
 <title>NIITE — Pata fundi, haraka</title>
 <link rel="manifest" href="manifest.json" />
-<link rel="apple-touch-icon" href="icon-192.png" />
-<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -235,7 +233,9 @@
 <script src="config.js"></script>
 <script src="app.js"></script>
 <script>
-  if ("serviceWorker" in navigator) {
+  /* Service worker inafaa kwenye browser tu. Ndani ya app ya Android
+     (Capacitor) faili zote ziko ndani tayari, hivyo haihitajiki. */
+  if ("serviceWorker" in navigator && location.protocol.indexOf("http") === 0 && !window.Capacitor) {
     window.addEventListener("load", function () {
       navigator.serviceWorker.register("sw.js").catch(function (err) {
         console.warn("Service worker haijasajiliwa:", err);
