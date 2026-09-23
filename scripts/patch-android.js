@@ -126,9 +126,8 @@ if (fs.existsSync(stylesPath)) {
         <item name="android:windowTranslucentStatus">true</item>
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
-</style>
 </resources>
-`.replace("</style>\n</resources>", "</resources>")
+`
   );
   console.log("  + styles.xml (status/nav bars wazi)");
 }
