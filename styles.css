@@ -165,7 +165,7 @@ input, select, textarea { font-family: inherit; font-size: 16px; }
   min-height: 0;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
-  padding: 14px 14px calc(18px + env(safe-area-inset-bottom));
+  padding: 14px 14px calc(24px + env(safe-area-inset-bottom, 0px));
   display: flex;
   flex-direction: column;
   gap: 14px;
