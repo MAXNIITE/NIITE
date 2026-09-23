@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "NIITE — pata fundi wa kila aina, haraka.",
   "private": true,
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
     "sync": "cap sync android",
     "add:android": "cap add android",

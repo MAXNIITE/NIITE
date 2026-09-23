@@ -1,9 +1,7 @@
-import { defineConfig } from "@capacitor/cli";
-
-export default defineConfig({
+module.exports = {
   appId: "com.wellxai.niite",
   appName: "NIITE",
-  webDir: ".",
+  webDir: "www",
   bundledWebRuntime: false,
   android: {
     allowMixedContent: true,
@@ -12,4 +10,4 @@ export default defineConfig({
   server: {
     androidScheme: "https",
   },
-});
+};
