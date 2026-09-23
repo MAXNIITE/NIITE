@@ -1,5 +1,8 @@
 /* NIITE — Supabase connection config.
-   The anon key is a public, browser-safe key (Row Level Security policies
-   in the database control what it can actually read and write). */
+   Paste the project's real anon key below (Supabase dashboard -> Project
+   Settings -> API -> "anon / public"). The anon key is browser-safe:
+   the Row Level Security policies in the database control what it can
+   actually read and write. Until a real key is present the app runs on
+   the built-in demo list of fundis. */
 window.NIITE_SUPABASE_URL = "https://ihrlcoyijrtxwleongdl.supabase.co";
-window.NIITE_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlocmxjb3lpanJ0eHdsZW9uZ2RsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjUwMDAwMDAsImV4cCI6MjA4MDU3NjAwMH0.placeholder-anon-key";
+window.NIITE_SUPABASE_ANON_KEY = "";
